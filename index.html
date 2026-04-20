@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>對話編碼工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body { font-family: 'Inter', 'Noto Sans TC', sans-serif; }
+        .active-chatroom { border-left: 4px solid #3b82f6; background-color: #eff6ff; }
+        .message-bot { background-color: #f3f4f6; border-left: 4px solid #9ca3af; }
+        .message-user { background-color: #e0f2fe; border-left: 4px solid #0ea5e9; }
+        .confusing-card { border-color: #ef4444 !important; border-width: 2px !important; box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2); }
+        .sticky-header { position: sticky; top: 0; z-index: 10; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(2px); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+
+    <div id="app" class="max-w-[1600px] mx-auto p-4 md:p-8">
+        <!-- 頂部標題與控制 -->
+        <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-slate-800">對話編碼輔助器 <span class="text-sm font-normal bg-red-100 text-red-700 px-2 py-1 rounded ml-2">V1.2</span></h1>
+                <p class="text-slate-500 mt-1">若對代碼有疑慮請勾選「爭議」，匯出時將標註 <span class="font-bold text-red-600">*</span> 符號</p>
+            </div>
+            <div class="flex gap-2">
+                <button id="exportXlsxBtn" class="hidden px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-sm font-medium">匯出 XLSX</button>
+                <button id="exportCsvBtn" class="hidden px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition shadow-sm font-medium">匯出 CSV</button>
+            </div>
+        </header>
+
+        <!-- 檔案上傳區域 -->
+        <div id="uploadSection" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <label class="block text-sm font-semibold text-slate-700 mb-2">1. 上傳 Coding Schema (.xlsx / .csv)</label>
+                <input type="file" id="schemaFile" accept=".csv, .xlsx, .xls" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <label class="block text-sm font-semibold text-slate-700 mb-2">2. 上傳 Coding Results (.xlsx / .csv)</label>
+                <input type="file" id="resultsFile" accept=".csv, .xlsx, .xls" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            </div>
+        </div>
+
+        <!-- 主要工作區 -->
+        <div id="mainWorkspace" class="hidden grid grid-cols-12 gap-6 h-[75vh]">
+            <!-- 左側聊天室清單 -->
+            <div class="col-span-12 md:col-span-3 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                <div class="p-4 border-b border-slate-100 bg-slate-50 font-bold text-slate-700 flex justify-between items-center">
+                    <span>聊天室列表</span>
+                    <span id="progressText" class="text-xs font-normal text-slate-500">0 / 0</span>
+                </div>
+                <div id="chatroomList" class="overflow-y-auto flex-1 divide-y divide-slate-100 custom-scrollbar"></div>
+            </div>
+
+            <!-- 右側對話顯示區 -->
+            <div class="col-span-12 md:col-span-9 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col relative">
+                <div id="chatHeader" class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center sticky-header">
+                    <h2 class="font-bold text-slate-700" id="currentChatroomId">請選擇聊天室</h2>
+                    <div class="flex gap-2">
+                        <button id="prevBtn" class="px-3 py-1 bg-white border border-slate-200 hover:bg-slate-50 rounded text-slate-600 text-sm shadow-sm font-medium">上一個</button>
+                        <button id="nextBtn" class="px-3 py-1 bg-white border border-slate-200 hover:bg-slate-50 rounded text-slate-600 text-sm shadow-sm font-medium">下一個</button>
+                    </div>
+                </div>
+                <div id="dialogueContainer" class="p-6 overflow-y-auto flex-1 space-y-6 custom-scrollbar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 說明氣泡彈窗 (Modal) -->
+    <div id="helpModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-white w-full max-w-2xl max-h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="p-4 border-b bg-slate-50 flex justify-between items-center">
+                <h3 id="helpModalTitle" class="font-bold text-slate-800 flex items-center gap-2">
+                    <span class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm italic font-serif">i</span>
+                    編碼說明規範
+                </h3>
+                <button onclick="closeHelpModal()" class="text-slate-400 hover:text-slate-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div id="helpModalContent" class="overflow-y-auto p-6 space-y-4 custom-scrollbar"></div>
+            <div class="p-4 border-t text-right bg-slate-50">
+                <button onclick="closeHelpModal()" class="px-6 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-900 transition">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 訊息提示視窗 -->
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-800 text-white rounded-full shadow-lg opacity-0 transition-opacity pointer-events-none z-50 text-sm">已儲存變更</div>
+
+    <script>
+        let state = {
+            schema: [],
+            data: [], 
+            chatrooms: [], 
+            currentChatroomIndex: 0,
+            schemaOptions: { S: [], B: [] }
+        };
+
+        const elements = {
+            schemaFile: document.getElementById('schemaFile'),
+            resultsFile: document.getElementById('resultsFile'),
+            mainWorkspace: document.getElementById('mainWorkspace'),
+            chatroomList: document.getElementById('chatroomList'),
+            dialogueContainer: document.getElementById('dialogueContainer'),
+            exportCsvBtn: document.getElementById('exportCsvBtn'),
+            exportXlsxBtn: document.getElementById('exportXlsxBtn'),
+            progressText: document.getElementById('progressText'),
+            currentChatroomId: document.getElementById('currentChatroomId'),
+            prevBtn: document.getElementById('prevBtn'),
+            nextBtn: document.getElementById('nextBtn'),
+            toast: document.getElementById('toast'),
+            helpModal: document.getElementById('helpModal'),
+            helpModalContent: document.getElementById('helpModalContent'),
+            helpModalTitle: document.getElementById('helpModalTitle')
+        };
+
+        function init() {
+            elements.schemaFile.addEventListener('change', (e) => handleFileUpload(e, 'schema'));
+            elements.resultsFile.addEventListener('change', (e) => handleFileUpload(e, 'data'));
+            elements.exportCsvBtn.addEventListener('click', () => exportFile('csv'));
+            elements.exportXlsxBtn.addEventListener('click', () => exportFile('xlsx'));
+            elements.prevBtn.addEventListener('click', () => switchChatroom(state.currentChatroomIndex - 1));
+            elements.nextBtn.addEventListener('click', () => switchChatroom(state.currentChatroomIndex + 1));
+            elements.helpModal.addEventListener('click', (e) => { if (e.target === elements.helpModal) closeHelpModal(); });
+        }
+
+        async function handleFileUpload(e, type) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const extension = file.name.split('.').pop().toLowerCase();
+
+            if (extension === 'csv') {
+                Papa.parse(file, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => finalizeUpload(results.data, type)
+                });
+            } else if (extension === 'xlsx' || extension === 'xls') {
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    const bstr = evt.target.result;
+                    const wb = XLSX.read(bstr, { type: 'binary' });
+                    let sheetName = wb.SheetNames[0];
+                    if (type === 'schema') {
+                        const found = wb.SheetNames.find(n => n.toLowerCase().includes('schema'));
+                        if (found) sheetName = found;
+                    } else {
+                        const found = wb.SheetNames.find(n => n.toLowerCase().includes('result') || n.toLowerCase().includes('data'));
+                        if (found) sheetName = found;
+                    }
+                    const data = XLSX.utils.sheet_to_json(wb.Sheets[sheetName]);
+                    finalizeUpload(data, type);
+                };
+                reader.readAsBinaryString(file);
+            }
+        }
+
+        function finalizeUpload(rawData, type) {
+            if (type === 'schema') {
+                state.schema = rawData;
+                processSchema();
+            } else {
+                state.data = rawData.map(item => ({
+                    ...item,
+                    // 如果匯入時 confusing 欄位是 "*" 則轉為布林 true
+                    is_confusing: item.confusing === '*'
+                }));
+                processData();
+            }
+            if (state.schema.length > 0 && state.data.length > 0) {
+                elements.mainWorkspace.classList.remove('hidden');
+                elements.exportCsvBtn.classList.remove('hidden');
+                elements.exportXlsxBtn.classList.remove('hidden');
+                renderChatroomList();
+                renderCurrentChatroom();
+            }
+        }
+
+        function processSchema() {
+            state.schemaOptions = { S: [], B: [] };
+            state.schema.forEach(item => {
+                const code = item['代碼'] || item['code'];
+                const role = item['角色'] || item['role'];
+                const name = item['名稱'] || item['name'];
+                const desc = item['說明'] || item['description'] || "無詳細說明";
+                if (!code) return;
+                const option = { code, name, desc };
+                if (String(role).includes('S')) state.schemaOptions.S.push(option);
+                if (String(role).includes('B')) state.schemaOptions.B.push(option);
+            });
+        }
+
+        function processData() {
+            state.data.sort((a, b) => {
+                const chatA = String(a.chatroom_id || "");
+                const chatB = String(b.chatroom_id || "");
+                if (chatA !== chatB) return chatA.localeCompare(chatB);
+                return parseInt(a.id) - parseInt(b.id);
+            });
+
+            const groups = {};
+            state.data.forEach(msg => {
+                const cid = msg.chatroom_id;
+                if (!groups[cid]) groups[cid] = [];
+                groups[cid].push(msg);
+            });
+
+            state.chatrooms = Object.keys(groups).map(id => ({ id, messages: groups[id] }));
+            const firstIncompleteIndex = state.chatrooms.findIndex(room => room.messages.some(m => !m.code || String(m.code).trim() === ""));
+            state.currentChatroomIndex = firstIncompleteIndex !== -1 ? firstIncompleteIndex : 0;
+        }
+
+        function renderChatroomList() {
+            elements.chatroomList.innerHTML = '';
+            state.chatrooms.forEach((room, index) => {
+                const isCompleted = room.messages.every(m => m.code && String(m.code).trim() !== "");
+                const hasConfusing = room.messages.some(m => m.is_confusing);
+                const div = document.createElement('div');
+                div.className = `p-4 cursor-pointer hover:bg-slate-50 transition border-l-4 ${index === state.currentChatroomIndex ? 'active-chatroom' : 'border-transparent'}`;
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-slate-700 truncate w-32">${room.id}</span>
+                        <div class="flex gap-1">
+                            ${hasConfusing ? '<span class="w-2 h-2 bg-red-500 rounded-full" title="內含爭議對話"></span>' : ''}
+                            ${isCompleted ? '<span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">完成</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="text-[11px] text-slate-400 mt-1">${room.messages.length} 則對話</div>
+                `;
+                div.onclick = () => switchChatroom(index);
+                elements.chatroomList.appendChild(div);
+            });
+            elements.progressText.innerText = `${state.currentChatroomIndex + 1} / ${state.chatrooms.length}`;
+        }
+
+        function switchChatroom(index) {
+            if (index < 0 || index >= state.chatrooms.length) return;
+            state.currentChatroomIndex = index;
+            renderChatroomList();
+            renderCurrentChatroom();
+            elements.dialogueContainer.scrollTop = 0;
+        }
+
+        function renderCurrentChatroom() {
+            const room = state.chatrooms[state.currentChatroomIndex];
+            elements.currentChatroomId.innerText = `Room: ${room.id}`;
+            elements.dialogueContainer.innerHTML = '';
+
+            room.messages.forEach(msg => {
+                const isBot = msg.sender === 'bot';
+                const roleKey = isBot ? 'B' : 'S';
+                const options = state.schemaOptions[roleKey];
+                
+                const card = document.createElement('div');
+                card.id = `card-${msg.id}`;
+                card.className = `p-5 rounded-xl ${isBot ? 'message-bot' : 'message-user'} shadow-sm border border-slate-200 relative transition-all ${msg.is_confusing ? 'confusing-card' : ''}`;
+                
+                let currentRawCode = msg.code ? String(msg.code) : "";
+                let currentCodeValue = currentRawCode.replace('S.', '').replace('B.', '');
+
+                let optionsHtml = `<option value="">-- 未編碼 --</option>`;
+                options.forEach(opt => {
+                    optionsHtml += `<option value="${opt.code}" ${currentCodeValue === opt.code ? 'selected' : ''}>${opt.code}: ${opt.name}</option>`;
+                });
+
+                card.innerHTML = `
+                    <div class="flex flex-wrap justify-between items-start gap-2 mb-3">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-bold uppercase tracking-wider ${isBot ? 'text-slate-500' : 'text-blue-600'}">
+                                ${isBot ? '🤖 Bot' : '👤 Student'} - ID: ${msg.id}
+                            </span>
+                            <label class="flex items-center gap-1 cursor-pointer group">
+                                <input type="checkbox" class="confusing-checkbox w-4 h-4 text-red-600 rounded border-slate-300 focus:ring-red-500" ${msg.is_confusing ? 'checked' : ''}>
+                                <span class="text-xs font-bold text-slate-400 group-hover:text-red-500 transition-colors ${msg.is_confusing ? 'text-red-600' : ''}">爭議</span>
+                            </label>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button class="help-btn w-6 h-6 flex items-center justify-center bg-white border border-slate-200 text-blue-500 rounded-full hover:bg-blue-50 shadow-sm transition-colors" title="查看編碼說明">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                            </button>
+                            <select class="code-select text-sm p-1.5 rounded border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none min-w-[140px] bg-white shadow-sm" data-id="${msg.id}">
+                                ${optionsHtml}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="text-slate-800 text-sm md:text-base leading-relaxed whitespace-pre-wrap">${msg.message}</div>
+                `;
+
+                // 事件綁定
+                card.querySelector('.help-btn').onclick = () => openHelpModal(roleKey);
+                card.querySelector('.code-select').onchange = (e) => {
+                    const val = e.target.value;
+                    updateCode(msg.id, val ? `${roleKey}.${val}` : "");
+                };
+                card.querySelector('.confusing-checkbox').onchange = (e) => {
+                    toggleConfusing(msg.id, e.target.checked);
+                };
+
+                elements.dialogueContainer.appendChild(card);
+            });
+        }
+
+        function updateCode(msgId, fullCode) {
+            const dataIndex = state.data.findIndex(d => d.id === msgId);
+            if (dataIndex !== -1) {
+                state.data[dataIndex].code = fullCode;
+                showToast(`已更新: ${fullCode || '未編碼'}`);
+                const currentRoom = state.chatrooms[state.currentChatroomIndex];
+                if (currentRoom.messages.every(m => m.code && String(m.code).trim() !== "")) renderChatroomList();
+            }
+        }
+
+        function toggleConfusing(msgId, isChecked) {
+            const dataIndex = state.data.findIndex(d => d.id === msgId);
+            if (dataIndex !== -1) {
+                state.data[dataIndex].is_confusing = isChecked;
+                const card = document.getElementById(`card-${msgId}`);
+                const labelText = card.querySelector('.confusing-checkbox + span');
+                
+                if (isChecked) {
+                    card.classList.add('confusing-card');
+                    labelText.classList.add('text-red-600');
+                    labelText.classList.remove('text-slate-400');
+                } else {
+                    card.classList.remove('confusing-card');
+                    labelText.classList.remove('text-red-600');
+                    labelText.classList.add('text-slate-400');
+                }
+                
+                renderChatroomList(); // 更新左側列表紅點狀態
+                showToast(isChecked ? "標記為爭議" : "取消爭議標記");
+            }
+        }
+
+        function openHelpModal(role) {
+            const roleName = role === 'S' ? '學生 (Student)' : '機器人 (Bot)';
+            elements.helpModalTitle.innerHTML = `<span class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm italic font-serif">i</span> ${roleName} 編碼清單說明`;
+            const options = state.schemaOptions[role];
+            elements.helpModalContent.innerHTML = options.map(opt => `
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="font-mono font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded text-sm">${role}.${opt.code}</span>
+                        <span class="font-bold text-slate-800">${opt.name}</span>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed">${opt.desc}</p>
+                </div>
+            `).join('');
+            elements.helpModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeHelpModal() {
+            elements.helpModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function showToast(msg) {
+            elements.toast.innerText = msg;
+            elements.toast.classList.replace('opacity-0', 'opacity-100');
+            setTimeout(() => elements.toast.classList.replace('opacity-100', 'opacity-0'), 2000);
+        }
+
+        function exportFile(format) {
+            const exportData = state.data.map(item => ({
+                id: item.id,
+                chatroom_id: item.chatroom_id,
+                book_id: item.book_id,
+                user_id: item.user_id,
+                學號: item['學號'] || item['student_id'] || "",
+                sender: item.sender,
+                message: item.message,
+                code: item.code || "",
+                confusing: item.is_confusing ? '*' : '' // 新增欄位並用 * 標記
+            }));
+            
+            const ts = new Date().toISOString().slice(0, 10);
+            if (format === 'csv') {
+                const csv = Papa.unparse(exportData);
+                const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = `Dialogue_Coding_Results_${ts}.csv`;
+                link.click();
+            } else {
+                const ws = XLSX.utils.json_to_sheet(exportData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Coding Results");
+                XLSX.writeFile(wb, `Dialogue_Coding_Results_${ts}.xlsx`);
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
