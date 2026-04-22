@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>對話編碼輔助器</title>
+    <title>對話編碼輔助器 Pro - 高密度清晰版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -51,6 +51,9 @@
             font-family: monospace;
             box-shadow: 0 1px 0 rgba(0,0,0,0.15);
         }
+
+        .delete-btn-hover { opacity: 0; transition: opacity 0.2s; }
+        .chatroom-item:hover .delete-btn-hover { opacity: 1; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
@@ -62,7 +65,7 @@
                     <h1 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
                         對話編碼輔助器 <span class="text-xs font-normal bg-indigo-600 text-white px-2 py-0.5 rounded-full uppercase">Pro</span>
                     </h1>
-                    <p class="text-slate-500 text-sm">學位保衛戰</p>
+                    <p class="text-slate-500 text-sm">高密度排版作業環境</p>
                 </div>
                 <button id="darkModeToggle" class="p-2 rounded-full hover:bg-slate-200 transition text-lg" title="切換深色模式">🌙</button>
             </div>
@@ -128,8 +131,8 @@
             </div>
         </div>
 
-        <div id="dashboardView" class="hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div id="dashboardView" class="hidden animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6 pb-20">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center">
                     <div class="text-xs font-bold text-slate-400 uppercase mb-1">整體進度</div>
                     <span id="dashProgress" class="text-4xl font-black text-indigo-600">0%</span>
@@ -147,13 +150,36 @@
                     <span id="dashUserCount" class="text-4xl font-black text-slate-700">0</span>
                 </div>
             </div>
+            
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div class="bg-white p-6 rounded-2xl border border-slate-200"><h3 class="font-bold mb-4">B. Tags 統計</h3><div id="botChart" class="space-y-4"></div></div>
                 <div class="bg-white p-6 rounded-2xl border border-slate-200"><h3 class="font-bold mb-4">S. Tags 統計</h3><div id="userChart" class="space-y-4"></div></div>
             </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-red-100 shadow-sm">
+                <h3 class="font-bold text-red-600 mb-4 flex items-center gap-2 uppercase tracking-wide text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    已刪除的記錄 (排除匯出)
+                </h3>
+                <div id="deletedLog" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+                <div id="noDeletedHint" class="text-center py-6 text-slate-300 italic text-sm">目前尚無刪除記錄</div>
+            </div>
         </div>
     </div>
 
+    <!-- 通用確認 Modal -->
+    <div id="confirmModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-[100] hidden p-4">
+        <div class="bg-white max-w-sm w-full p-6 rounded-2xl shadow-2xl animate-in zoom-in duration-200">
+            <h3 id="confirmTitle" class="text-xl font-bold mb-2 text-slate-800 tracking-tight">操作確認</h3>
+            <p id="confirmMessage" class="text-sm text-slate-500 mb-6 leading-relaxed"></p>
+            <div class="flex gap-3">
+                <button id="confirmCancel" class="flex-1 py-2.5 border border-slate-200 rounded-xl text-slate-600 font-bold hover:bg-slate-50 transition-all">取消</button>
+                <button id="confirmOk" class="flex-1 py-2.5 bg-red-600 text-white rounded-xl font-bold shadow-lg hover:bg-red-700 transition-all">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 映射 Modal -->
     <div id="mappingModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden p-4">
         <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in duration-200">
             <div class="p-4 border-b bg-indigo-50 flex justify-between items-center">
@@ -161,25 +187,27 @@
             </div>
             <div id="mappingModalContent" class="p-6 space-y-4 overflow-y-auto max-h-[60vh] custom-scrollbar"></div>
             <div class="p-4 border-t bg-slate-50 flex justify-end gap-3">
-                <button id="cancelMappingBtn" class="px-4 py-2 text-slate-600 text-sm">取消</button>
+                <button id="cancelMappingBtn" class="px-4 py-2 text-slate-600 text-sm font-bold">取消</button>
                 <button id="confirmMappingBtn" class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-bold text-sm">載入資料</button>
             </div>
         </div>
     </div>
 
+    <!-- 恢復進度 Modal -->
     <div id="restoreModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden p-4">
         <div class="bg-white max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center">
-            <h3 class="text-xl font-bold mb-2">繼續上次進度？</h3>
-            <p class="text-sm text-slate-500 mb-6">發現此檔案的本地編碼記錄。</p>
+            <h3 class="text-xl font-bold mb-2 text-slate-800 tracking-tight">繼續上次進度？</h3>
+            <p class="text-sm text-slate-500 mb-6 leading-relaxed">發現此檔案在瀏覽器中有本地編碼記錄。</p>
             <div class="flex gap-3">
-                <button id="restoreNo" class="flex-1 py-2 border rounded-lg text-slate-600">重頭開始</button>
-                <button id="restoreYes" class="flex-1 py-2 bg-indigo-600 text-white rounded-lg font-bold">恢復進度</button>
+                <button id="restoreNo" class="flex-1 py-2 border border-slate-200 rounded-xl text-slate-600 font-bold hover:bg-slate-50">重新開始</button>
+                <button id="restoreYes" class="flex-1 py-2 bg-indigo-600 text-white rounded-xl font-bold shadow-md hover:bg-indigo-700">恢復進度</button>
             </div>
         </div>
     </div>
 
+    <!-- 說明 Modal -->
     <div id="helpModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden p-4">
-        <div class="bg-white w-full max-w-2xl max-h-[80vh] rounded-2xl flex flex-col overflow-hidden">
+        <div class="bg-white w-full max-w-2xl max-h-[80vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
             <div class="p-4 border-b bg-indigo-50 flex justify-between items-center">
                 <h3 id="helpModalTitle" class="font-bold text-indigo-900 italic">i 編碼說明</h3>
                 <button onclick="closeHelpModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
@@ -188,7 +216,7 @@
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-800 text-white rounded-full shadow-2xl opacity-0 transition-opacity pointer-events-none z-50 text-sm font-bold">已自動儲存</div>
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-800 text-white rounded-full shadow-2xl opacity-0 transition-opacity pointer-events-none z-50 text-sm font-bold tracking-tight">已自動儲存</div>
 
     <script>
         let state = {
@@ -199,7 +227,8 @@
             filters: { search: '', incompleteOnly: false, confusingOnly: false },
             isDarkMode: false,
             currentFileName: '',
-            activeTab: 'editor'
+            activeTab: 'editor',
+            deletedChatrooms: [] // 每個物件: { id, count, messages: [] }
         };
 
         const elements = {
@@ -221,8 +250,16 @@
             darkModeToggle: document.getElementById('darkModeToggle'),
             tabNav: document.getElementById('tabNav'),
             listSearch: document.getElementById('listSearch'),
-            clearStorageBtn: document.getElementById('clearStorageBtn')
+            clearStorageBtn: document.getElementById('clearStorageBtn'),
+            deletedLog: document.getElementById('deletedLog'),
+            noDeletedHint: document.getElementById('noDeletedHint'),
+            confirmModal: document.getElementById('confirmModal'),
+            confirmMessage: document.getElementById('confirmMessage'),
+            confirmOk: document.getElementById('confirmOk'),
+            confirmCancel: document.getElementById('confirmCancel')
         };
+
+        let confirmCallback = null;
 
         function init() {
             elements.schemaFile.addEventListener('change', (e) => startMapping(e, 'schema'));
@@ -234,12 +271,27 @@
             elements.cancelMappingBtn.addEventListener('click', () => elements.mappingModal.classList.add('hidden'));
             elements.darkModeToggle.addEventListener('click', toggleDarkMode);
             elements.listSearch.addEventListener('input', (e) => { state.filters.search = e.target.value; renderChatroomList(); });
-            elements.clearStorageBtn.addEventListener('click', clearAllStorage);
+            elements.clearStorageBtn.addEventListener('click', () => {
+                showConfirm("確定要清除所有進度並重新開始嗎？", () => {
+                    localStorage.removeItem(`coding_v7_${state.currentFileName}`);
+                    location.reload();
+                });
+            });
             document.querySelectorAll('.tab-btn').forEach(btn => btn.onclick = () => switchTab(btn.dataset.tab));
             document.getElementById('filterIncomplete').onclick = () => { state.filters.incompleteOnly = !state.filters.incompleteOnly; renderChatroomList(); };
             document.getElementById('filterConfusing').onclick = () => { state.filters.confusingOnly = !state.filters.confusingOnly; renderChatroomList(); };
             document.getElementById('filterReset').onclick = () => { state.filters = { search: '', incompleteOnly: false, confusingOnly: false }; elements.listSearch.value = ''; renderChatroomList(); };
+            
+            elements.confirmCancel.onclick = () => elements.confirmModal.classList.add('hidden');
+            elements.confirmOk.onclick = () => { if(confirmCallback) confirmCallback(); elements.confirmModal.classList.add('hidden'); };
+
             window.addEventListener('keydown', handleGlobalKeyDown);
+        }
+
+        function showConfirm(msg, callback) {
+            elements.confirmMessage.innerText = msg;
+            confirmCallback = callback;
+            elements.confirmModal.classList.remove('hidden');
         }
 
         function switchTab(tab) {
@@ -274,12 +326,13 @@
             if (type === 'results') state.currentFileName = file.name;
             const reader = new FileReader();
             reader.onload = (evt) => {
+                const bstr = evt.target.result;
                 const extension = file.name.split('.').pop().toLowerCase();
                 let data = [];
                 if (extension === 'csv') {
-                    Papa.parse(evt.target.result, { header: true, skipEmptyLines: true, complete: (res) => showMappingModal(res.data, type) });
+                    Papa.parse(bstr, { header: true, skipEmptyLines: true, complete: (res) => showMappingModal(res.data, type) });
                 } else {
-                    const wb = XLSX.read(evt.target.result, { type: 'binary' });
+                    const wb = XLSX.read(bstr, { type: 'binary' });
                     data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
                     showMappingModal(data, type);
                 }
@@ -288,7 +341,11 @@
         }
 
         function showMappingModal(data, type) {
-            const headers = Object.keys(data[0] || {});
+            if(!data || data.length === 0) {
+                showToast("錯誤：檔案內容為空");
+                return;
+            }
+            const headers = Object.keys(data[0]);
             state[type === 'schema' ? 'rawSchema' : 'rawResults'] = data;
             let html = '';
             if (type === 'schema') {
@@ -311,7 +368,7 @@
                 const isOpt = sel.dataset.optional === 'true';
                 sel.onchange = () => {
                     if (sel.value) preview.innerText = `範例: ${data[0][sel.value] || '(空)'}`;
-                    else preview.innerText = isOpt ? `範例: (將於匯出時自動建立)` : `範例: (尚未選擇)`;
+                    else preview.innerText = isOpt ? `範例: (將於匯出時自動建立新欄位)` : `範例: (尚未選擇)`;
                 };
                 sel.onchange();
             });
@@ -326,19 +383,32 @@
             const type = state.currentMappingType;
             if (type === 'schema') {
                 const code = getValue('schema_code');
-                if(!code) return alert("代碼欄位為必填");
+                if(!code) { showToast("錯誤：代碼欄位為必填"); return; }
                 state.mappings.schema = { code, name: getValue('schema_name'), desc: getValue('schema_desc'), role: getValue('schema_role') };
                 processSchema();
                 document.getElementById('schemaMappingStatus').innerText = "✅ 已配置規範";
             } else {
                 const chatroom = getValue('results_chatroom'), id = getValue('results_id'), sender = getValue('results_sender'), message = getValue('results_message');
-                if(!chatroom || !id || !sender || !message) return alert("前四項為必選");
+                if(!chatroom || !id || !sender || !message) { showToast("錯誤：前四項為必選"); return; }
                 state.mappings.results = { chatroom, id, sender, message, code: getValue('results_code'), confusing: getValue('results_confusing') };
-                const saved = localStorage.getItem(`coding_v5_${state.currentFileName}`);
+                
+                const saved = localStorage.getItem(`coding_v7_${state.currentFileName}`);
                 if (saved) {
+                    const savedObj = JSON.parse(saved);
                     elements.restoreModal.classList.remove('hidden');
-                    document.getElementById('restoreYes').onclick = () => { state.rawResults = JSON.parse(saved); processData(); elements.restoreModal.classList.add('hidden'); checkFinalReady(); };
-                    document.getElementById('restoreNo').onclick = () => { processData(); elements.restoreModal.classList.add('hidden'); checkFinalReady(); };
+                    document.getElementById('restoreYes').onclick = () => { 
+                        state.data = savedObj.data || []; 
+                        state.deletedChatrooms = savedObj.deleted || [];
+                        rebuildChatrooms();
+                        elements.restoreModal.classList.add('hidden'); 
+                        checkFinalReady(); 
+                    };
+                    document.getElementById('restoreNo').onclick = () => { 
+                        state.deletedChatrooms = [];
+                        processData(); 
+                        elements.restoreModal.classList.add('hidden'); 
+                        checkFinalReady(); 
+                    };
                 } else { processData(); checkFinalReady(); }
                 document.getElementById('resultsMappingStatus').innerText = "✅ 已載入資料";
             }
@@ -380,6 +450,10 @@
                 _code: m.code ? (item[m.code] || '') : '',
                 is_confusing: m.confusing ? (item[m.confusing] === '*') : false
             }));
+            rebuildChatrooms();
+        }
+
+        function rebuildChatrooms() {
             state.data.sort((a, b) => (String(a._chatroom) !== String(b._chatroom)) ? String(a._chatroom).localeCompare(String(b._chatroom)) : parseInt(a._id) - parseInt(b._id));
             const groups = {};
             state.data.forEach(msg => { if (!groups[msg._chatroom]) groups[msg._chatroom] = []; groups[msg._chatroom].push(msg); });
@@ -391,7 +465,7 @@
         function renderChatroomList() {
             elements.chatroomList.innerHTML = '';
             const filtered = state.chatrooms.filter(room => {
-                if (state.filters.search && !room.id.includes(state.filters.search)) return false;
+                if (state.filters.search && !String(room.id).includes(state.filters.search)) return false;
                 const isDone = room.messages.every(m => m._code), hasConf = room.messages.some(m => m.is_confusing);
                 if (state.filters.incompleteOnly && isDone) return false;
                 if (state.filters.confusingOnly && !hasConf) return false;
@@ -400,15 +474,88 @@
             filtered.forEach((room) => {
                 const isDone = room.messages.every(m => m._code), hasConf = room.messages.some(m => m.is_confusing), realIdx = state.chatrooms.indexOf(room);
                 const div = document.createElement('div');
-                div.className = `p-3 cursor-pointer hover:bg-slate-50 border-l-4 transition-all ${realIdx === state.currentChatroomIndex ? 'active-chatroom' : 'border-transparent'}`;
-                div.innerHTML = `<div class="flex justify-between items-center mb-1"><span class="text-xs font-bold text-slate-700 truncate w-32">${room.id}</span>${hasConf ? '<span class="text-[9px] bg-red-500 text-white px-1.5 rounded-full font-black">!</span>' : ''}</div><div class="flex justify-between text-[10px] font-medium"><span class="text-slate-400">${room.messages.length} 則</span>${isDone ? '<span class="text-green-600 font-bold">完成</span>' : ''}</div>`;
-                div.onclick = () => switchChatroom(realIdx);
+                div.className = `chatroom-item p-3 cursor-pointer hover:bg-slate-50 border-l-4 transition-all flex justify-between items-center ${realIdx === state.currentChatroomIndex ? 'active-chatroom' : 'border-transparent'}`;
+                
+                div.innerHTML = `
+                    <div class="flex-1 min-w-0 pr-2 pointer-events-none">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-bold text-slate-700 truncate w-32">${room.id}</span>
+                            ${hasConf ? '<span class="text-[9px] bg-red-500 text-white px-1.5 rounded-full font-black">!</span>' : ''}
+                        </div>
+                        <div class="flex justify-between text-[10px] font-medium">
+                            <span class="text-slate-400">${room.messages.length} 則</span>
+                            ${isDone ? '<span class="text-green-600 font-bold">完成</span>' : ''}
+                        </div>
+                    </div>
+                    <button class="delete-btn delete-btn-hover p-1.5 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                        <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                `;
+
+                div.onclick = (e) => {
+                    if(e.target.closest('.delete-btn')) {
+                        deleteChatroom(realIdx);
+                    } else {
+                        switchChatroom(realIdx);
+                    }
+                };
+
                 elements.chatroomList.appendChild(div);
             });
             elements.progressText.innerText = `${filtered.length} / ${state.chatrooms.length}`;
         }
 
+        function deleteChatroom(index) {
+            const room = state.chatrooms[index];
+            showConfirm(`確定要刪除對話群組 [${room.id}] 嗎？此動作將從匯出資料中移除。`, () => {
+                // 將該群組的原始資料存入備份區以便復原
+                state.deletedChatrooms.push({ 
+                    id: room.id, 
+                    count: room.messages.length,
+                    messages: [...room.messages] 
+                });
+                
+                // 從主資料中過濾掉
+                state.data = state.data.filter(msg => msg._chatroom !== room.id);
+                state.chatrooms.splice(index, 1);
+
+                if (state.currentChatroomIndex >= state.chatrooms.length) {
+                    state.currentChatroomIndex = Math.max(0, state.chatrooms.length - 1);
+                }
+
+                saveToLocalStorage();
+                updateDashboard();
+                renderChatroomList();
+                if (state.chatrooms.length > 0) renderCurrentChatroom();
+                else {
+                    elements.dialogueContainer.innerHTML = '<div class="text-center py-20 text-slate-300 font-medium">資料庫目前已無任何對話</div>';
+                    elements.currentChatroomId.innerText = '無對話';
+                }
+                showToast("已將對話移至刪除記錄");
+            });
+        }
+
+        function restoreChatroom(id) {
+            const recordIdx = state.deletedChatrooms.findIndex(d => d.id === id);
+            if (recordIdx === -1) return;
+
+            const record = state.deletedChatrooms[recordIdx];
+            // 將備份的訊息放回 data
+            state.data.push(...record.messages);
+            // 從備份區移除
+            state.deletedChatrooms.splice(recordIdx, 1);
+
+            // 重新整理結構
+            rebuildChatrooms();
+            saveToLocalStorage();
+            updateDashboard();
+            renderChatroomList();
+            renderCurrentChatroom();
+            showToast(`已復原對話: ${id}`);
+        }
+
         function switchChatroom(index) {
+            if (index < 0 || index >= state.chatrooms.length) return;
             state.currentChatroomIndex = index;
             renderChatroomList();
             renderCurrentChatroom();
@@ -417,40 +564,19 @@
 
         function renderCurrentChatroom() {
             const room = state.chatrooms[state.currentChatroomIndex];
+            if (!room) return;
             elements.currentChatroomId.innerText = `群組: ${room.id}`;
             elements.dialogueContainer.innerHTML = '';
             room.messages.forEach(msg => {
                 const isBot = String(msg._sender).toLowerCase() === 'bot', roleKey = isBot ? 'B' : 'S', options = state.schemaOptions[roleKey];
                 const card = document.createElement('div');
                 card.id = `card-${msg._id}`;
-                // 高密度排版：減小 Padding 與間距
                 card.className = `w-full p-4 rounded-xl ${isBot ? 'message-bot-style' : 'message-user-style'} shadow-sm border transition-all ${msg.is_confusing ? 'confusing-card' : ''}`;
                 card.onmouseenter = () => card.dataset.focused = 'true';
                 card.onmouseleave = () => delete card.dataset.focused;
                 let cur = String(msg._code || "").replace('S.', '').replace('B.', '');
                 let opts = `<option value="">-- 選取編碼 --</option>` + options.map((o,i) => `<option value="${o.code}" ${cur === o.code ? 'selected' : ''}>[${i+1}] ${o.code}: ${o.name}</option>`).join('');
-                card.innerHTML = `
-                    <div class="flex flex-col gap-2">
-                        <div class="flex items-center justify-between gap-4 border-b border-slate-200/50 pb-2">
-                            <div class="flex items-center gap-4">
-                                <span class="text-[10px] font-black uppercase tracking-widest ${isBot ? 'text-slate-500' : 'text-indigo-600'} bg-white/60 px-2 py-0.5 rounded shadow-inner">
-                                    ${isBot ? 'BOT' : 'USER'} #${msg._id}
-                                </span>
-                                <label class="flex items-center gap-1.5 cursor-pointer select-none group">
-                                    <input type="checkbox" class="conf-check w-4 h-4 text-red-600 rounded group-hover:scale-110 transition-transform" ${msg.is_confusing ? 'checked' : ''}>
-                                    <span class="text-[11px] font-bold ${msg.is_confusing ? 'text-red-600' : 'text-slate-400'}">爭議</span>
-                                </label>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button class="help-btn w-6 h-6 bg-white border border-slate-200 text-blue-500 rounded-full text-xs hover:bg-blue-50 transition-colors shadow-sm font-serif">i</button>
-                                <select class="code-sel text-[11px] font-bold p-1 rounded-lg border border-slate-300 min-w-[150px] bg-white outline-none focus:ring-2 focus:ring-indigo-400">
-                                    ${opts}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="text-base text-slate-800 leading-relaxed whitespace-pre-wrap font-medium">${msg._message}</div>
-                    </div>
-                `;
+                card.innerHTML = `<div class="flex flex-col gap-2"><div class="flex items-center justify-between gap-4 border-b border-slate-200/50 pb-2"><div class="flex items-center gap-4"><span class="text-[10px] font-black uppercase tracking-widest ${isBot ? 'text-slate-500' : 'text-indigo-600'} bg-white/60 px-2 py-0.5 rounded shadow-inner">${isBot ? 'BOT' : 'USER'} #${msg._id}</span><label class="flex items-center gap-1.5 cursor-pointer select-none group"><input type="checkbox" class="conf-check w-4 h-4 text-red-600 rounded group-hover:scale-110 transition-transform" ${msg.is_confusing ? 'checked' : ''}><span class="text-[11px] font-bold ${msg.is_confusing ? 'text-red-600' : 'text-slate-400'}">爭議</span></label></div><div class="flex items-center gap-2"><button class="help-btn w-6 h-6 bg-white border border-slate-200 text-blue-500 rounded-full text-xs hover:bg-blue-50 transition-colors shadow-sm font-serif">i</button><select class="code-sel text-[11px] font-bold p-1 rounded-lg border border-slate-300 min-w-[150px] bg-white outline-none focus:ring-2 focus:ring-indigo-400">${opts}</select></div></div><div class="text-base text-slate-800 leading-relaxed whitespace-pre-wrap font-medium">${msg._message}</div></div>`;
                 card.querySelector('.code-sel').onchange = (e) => updateCode(msg._id, e.target.value ? `${roleKey}.${e.target.value}` : "");
                 card.querySelector('.conf-check').onchange = (e) => toggleConfusing(msg._id, e.target.checked);
                 card.querySelector('.help-btn').onclick = () => openHelpModal(roleKey);
@@ -469,9 +595,14 @@
             if (idx !== -1) {
                 state.data[idx].is_confusing = checked;
                 const card = document.getElementById(`card-${msgId}`);
-                card.classList.toggle('confusing-card', checked);
-                const label = card.querySelector('.conf-check + span');
-                label.classList.toggle('text-red-600', checked); label.classList.toggle('text-slate-400', !checked);
+                if(card) {
+                    card.classList.toggle('confusing-card', checked);
+                    const label = card.querySelector('.conf-check + span');
+                    if(label) {
+                        label.classList.toggle('text-red-600', checked); 
+                        label.classList.toggle('text-slate-400', !checked);
+                    }
+                }
                 saveToLocalStorage(); updateDashboard(); renderChatroomList(); showToast(checked ? "標記爭議" : "移除爭議");
             }
         }
@@ -484,16 +615,13 @@
         }
 
         function saveToLocalStorage() {
-            const m = state.mappings.results;
-            const toSave = state.data.map(d => {
-                const r = { ...d }, cHeader = m.code || 'code', cfHeader = m.confusing || 'confusing';
-                r[cHeader] = d._code; r[cfHeader] = d.is_confusing ? '*' : '';
-                delete r._id; delete r._chatroom; delete r._sender; delete r._message; delete r._code; delete r.is_confusing; return r;
-            });
-            localStorage.setItem(`coding_v5_${state.currentFileName}`, JSON.stringify(toSave));
+            if(!state.currentFileName) return;
+            // 這裡直接保存目前的 state.data 和 state.deletedChatrooms
+            localStorage.setItem(`coding_v7_${state.currentFileName}`, JSON.stringify({
+                data: state.data,
+                deleted: state.deletedChatrooms
+            }));
         }
-
-        function clearAllStorage() { if (confirm("確定清除進度？")) { localStorage.removeItem(`coding_v5_${state.currentFileName}`); location.reload(); } }
 
         function updateDashboard() {
             const total = state.data.length, coded = state.data.filter(d => d._code).length, conf = state.data.filter(d => d.is_confusing).length;
@@ -504,12 +632,27 @@
             document.getElementById('dashBotCount').innerText = bot.length;
             document.getElementById('dashUserCount').innerText = user.length;
             renderChart('bot', bot.filter(m => m._code)); renderChart('user', user.filter(m => m._code));
+            
+            // 更新儀表板刪除記錄，加入「復原」按鈕
+            elements.noDeletedHint.classList.toggle('hidden', state.deletedChatrooms.length > 0);
+            elements.deletedLog.innerHTML = state.deletedChatrooms.map(d => `
+                <div class="bg-white border border-red-200 p-4 rounded-xl flex justify-between items-center shadow-sm">
+                    <div class="min-w-0 pr-2">
+                        <div class="text-[10px] font-bold text-red-400 uppercase tracking-tighter mb-0.5">群組 ID</div>
+                        <div class="text-xs font-bold text-red-700 truncate" title="${d.id}">${d.id}</div>
+                        <div class="text-[10px] text-slate-400 mt-1">${d.count} 則訊息</div>
+                    </div>
+                    <button onclick="restoreChatroom('${d.id}')" class="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-black hover:bg-blue-600 hover:text-white transition-all">
+                        復原
+                    </button>
+                </div>
+            `).join('');
         }
 
         function renderChart(type, coded) {
             const counts = coded.reduce((acc, m) => { acc[m._code] = (acc[m._code] || 0) + 1; return acc; }, {});
             const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]), max = sorted[0]?.[1] || 1, container = document.getElementById(type + 'Chart');
-            container.innerHTML = sorted.map(([tag, count]) => `<div class="group"><div class="flex justify-between text-[10px] font-bold mb-1"><span class="font-mono text-slate-700">${tag}</span><span class="text-slate-400">${count} 次</span></div><div class="h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200"><div class="h-full ${type === 'bot' ? 'bg-indigo-500' : 'bg-blue-500'} rounded-full transition-all duration-1000" style="width: ${(count/max)*100}%"></div></div></div>`).join('') || '<div class="text-slate-400 text-xs italic py-4">無數據</div>';
+            container.innerHTML = sorted.map(([tag, count]) => `<div class="group"><div class="flex justify-between text-[10px] font-bold mb-1"><span class="font-mono text-slate-700">${tag}</span><span class="text-slate-400">${count} 次</span></div><div class="h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200"><div class="h-full ${type === 'bot' ? 'bg-indigo-500' : 'bg-blue-500'} rounded-full transition-all duration-1000" style="width: ${(count/max)*100}%"></div></div></div>`).join('') || '<div class="text-slate-400 text-sm italic py-4 font-medium">尚無編碼數據</div>';
         }
 
         function toggleDarkMode() { state.isDarkMode = !state.isDarkMode; document.body.classList.toggle('dark', state.isDarkMode); elements.darkModeToggle.innerText = state.isDarkMode ? '☀️' : '🌙'; }
@@ -518,13 +661,22 @@
         function exportFile() {
             const m = state.mappings.results;
             const exportData = state.data.map(item => {
-                const row = { ...item }, cHeader = m.code || 'code', cfHeader = m.confusing || 'confusing';
+                const row = { ...item };
+                const cHeader = m.code || 'code';
+                const cfHeader = m.confusing || 'confusing';
                 row[cHeader] = item._code; row[cfHeader] = item.is_confusing ? '*' : '';
-                delete row._id; delete row._chatroom; delete row._sender; delete row._message; delete row._code; delete row.is_confusing; return row;
+                // 清理內部的輔助屬性
+                const cleanRow = {};
+                Object.keys(row).forEach(key => {
+                    if (!key.startsWith('_') && key !== 'is_confusing') {
+                        cleanRow[key] = row[key];
+                    }
+                });
+                return cleanRow;
             });
             const ws = XLSX.utils.json_to_sheet(exportData), wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Coding Results");
-            XLSX.writeFile(wb, `Dialogue_Coding_Dense_${new Date().getTime()}.xlsx`);
+            XLSX.writeFile(wb, `Dialogue_Coding_Export_${new Date().getTime()}.xlsx`);
         }
 
         function closeHelpModal() { document.getElementById('helpModal').classList.add('hidden'); }
