@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>對話編碼輔助器 Pro - 高密度清晰版</title>
+    <title>對話編碼輔助器 Pro - 大數據穩定版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -63,9 +63,9 @@
             <div class="flex items-center gap-4">
                 <div>
                     <h1 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
-                        對話編碼輔助器 <span class="text-xs font-normal bg-indigo-600 text-white px-2 py-0.5 rounded-full uppercase">Pro</span>
+                        對話編碼輔助器 <span class="text-xs font-normal bg-indigo-600 text-white px-2 py-0.5 rounded-full uppercase tracking-tighter">Pro</span>
                     </h1>
-                    <p class="text-slate-500 text-sm">高密度排版作業環境</p>
+                    <p class="text-slate-500 text-sm">IndexedDB 離線存儲版 (解決容量限制問題)</p>
                 </div>
                 <button id="darkModeToggle" class="p-2 rounded-full hover:bg-slate-200 transition text-lg" title="切換深色模式">🌙</button>
             </div>
@@ -73,27 +73,27 @@
             <div class="flex gap-2">
                 <button id="exportXlsxBtn" class="hidden px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-md font-bold flex items-center gap-2 text-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    匯出結果
+                    匯出編碼結果
                 </button>
                 <button id="clearStorageBtn" class="hidden px-3 py-2 bg-white border border-red-200 text-red-500 rounded-lg hover:bg-red-50 text-xs font-medium">清除暫存</button>
             </div>
         </header>
 
         <nav id="tabNav" class="hidden flex border-b border-slate-200 mb-4 gap-8">
-            <button data-tab="editor" class="tab-btn pb-2 text-base transition-all tab-active font-bold">💬 編碼區</button>
-            <button data-tab="dashboard" class="tab-btn pb-2 text-base transition-all text-slate-500 hover:text-indigo-600 font-medium">📊 儀表板</button>
+            <button data-tab="editor" class="tab-btn pb-2 text-base transition-all tab-active font-bold">💬 編碼作業區</button>
+            <button data-tab="dashboard" class="tab-btn pb-2 text-base transition-all text-slate-500 hover:text-indigo-600 font-medium">📊 數據儀表板</button>
         </nav>
 
         <div id="uploadSection" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                <label class="block text-sm font-bold text-slate-700 mb-2">1. 載入規範 (Schema)</label>
+                <label class="block text-sm font-bold text-slate-700 mb-2">1. 載入編碼規範 (Schema)</label>
                 <input type="file" id="schemaFile" accept=".csv, .xlsx, .xls" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
-                <div id="schemaMappingStatus" class="mt-2 text-[10px] text-slate-400 italic">尚未配置</div>
+                <div id="schemaMappingStatus" class="mt-2 text-[10px] text-slate-400 font-medium italic">尚未配置欄位映射</div>
             </div>
             <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                <label class="block text-sm font-bold text-slate-700 mb-2">2. 載入資料 (Results)</label>
+                <label class="block text-sm font-bold text-slate-700 mb-2">2. 載入對話資料 (Results)</label>
                 <input type="file" id="resultsFile" accept=".csv, .xlsx, .xls" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
-                <div id="resultsMappingStatus" class="mt-2 text-[10px] text-slate-400 italic">尚未配置</div>
+                <div id="resultsMappingStatus" class="mt-2 text-[10px] text-slate-400 font-medium italic">尚未配置欄位映射</div>
             </div>
         </div>
 
@@ -101,7 +101,7 @@
             <div class="col-span-12 lg:col-span-3 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
                 <div class="p-3 border-b border-slate-100 bg-slate-50 flex flex-col gap-2">
                     <div class="flex items-center justify-between">
-                        <span class="font-bold text-slate-700 text-sm">對話清單</span>
+                        <span class="font-bold text-slate-700 text-sm">對話群組清單</span>
                         <span id="progressText" class="text-[10px] text-slate-400 font-bold">0 / 0</span>
                     </div>
                     <input type="text" id="listSearch" placeholder="搜尋 ID..." class="w-full text-xs p-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
@@ -119,12 +119,12 @@
                     <div class="flex items-center gap-4">
                         <h2 class="font-bold text-lg text-slate-700 truncate max-w-md" id="currentChatroomId">請選擇對話</h2>
                         <span class="hidden xl:inline text-[10px] text-slate-400 bg-white border px-2 py-1 rounded shadow-sm">
-                            快速鍵: <kbd>1</kbd>-<kbd>9</kbd> 快速編碼 (懸停對話框時)
+                            快速鍵提示: <kbd>1</kbd>-<kbd>9</kbd> 快速編碼 (滑鼠懸停時)
                         </span>
                     </div>
                     <div class="flex gap-2">
-                        <button id="prevBtn" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-slate-600 text-xs shadow-sm font-bold">← 上一個</button>
-                        <button id="nextBtn" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-slate-600 text-xs shadow-sm font-bold">下一個 →</button>
+                        <button id="prevBtn" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-slate-600 text-xs shadow-sm font-bold transition-all">← 上一個</button>
+                        <button id="nextBtn" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-slate-600 text-xs shadow-sm font-bold transition-all">下一個 →</button>
                     </div>
                 </div>
                 <div id="dialogueContainer" class="p-4 overflow-y-auto flex-1 space-y-3 custom-scrollbar bg-slate-50/30"></div>
@@ -179,11 +179,10 @@
         </div>
     </div>
 
-    <!-- 映射 Modal -->
     <div id="mappingModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden p-4">
         <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in duration-200">
             <div class="p-4 border-b bg-indigo-50 flex justify-between items-center">
-                <h3 id="mappingModalTitle" class="font-bold text-indigo-900">配置欄位映射</h3>
+                <h3 id="mappingModalTitle" class="font-bold text-indigo-900">配置資料映射</h3>
             </div>
             <div id="mappingModalContent" class="p-6 space-y-4 overflow-y-auto max-h-[60vh] custom-scrollbar"></div>
             <div class="p-4 border-t bg-slate-50 flex justify-end gap-3">
@@ -193,11 +192,10 @@
         </div>
     </div>
 
-    <!-- 恢復進度 Modal -->
     <div id="restoreModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden p-4">
         <div class="bg-white max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center">
             <h3 class="text-xl font-bold mb-2 text-slate-800 tracking-tight">繼續上次進度？</h3>
-            <p class="text-sm text-slate-500 mb-6 leading-relaxed">發現此檔案在瀏覽器中有本地編碼記錄。</p>
+            <p class="text-sm text-slate-500 mb-6 leading-relaxed">發現此檔案在瀏覽器中有 IndexedDB 保存的編碼記錄。</p>
             <div class="flex gap-3">
                 <button id="restoreNo" class="flex-1 py-2 border border-slate-200 rounded-xl text-slate-600 font-bold hover:bg-slate-50">重新開始</button>
                 <button id="restoreYes" class="flex-1 py-2 bg-indigo-600 text-white rounded-xl font-bold shadow-md hover:bg-indigo-700">恢復進度</button>
@@ -205,7 +203,6 @@
         </div>
     </div>
 
-    <!-- 說明 Modal -->
     <div id="helpModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden p-4">
         <div class="bg-white w-full max-w-2xl max-h-[80vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
             <div class="p-4 border-b bg-indigo-50 flex justify-between items-center">
@@ -219,6 +216,59 @@
     <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-800 text-white rounded-full shadow-2xl opacity-0 transition-opacity pointer-events-none z-50 text-sm font-bold tracking-tight">已自動儲存</div>
 
     <script>
+        // --- IndexedDB 核心邏輯 (大容量支持) ---
+        const DB_NAME = 'DialogueCodingDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'progress';
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME, { keyPath: 'fileName' });
+                    }
+                };
+                request.onsuccess = (e) => resolve(e.target.result);
+                request.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        async function saveProgressToDB(fileName, data, deleted) {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(STORE_NAME, 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.put({ fileName, data, deleted, timestamp: Date.now() });
+                request.onsuccess = () => resolve();
+                request.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        async function getProgressFromDB(fileName) {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(STORE_NAME, 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.get(fileName);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        async function deleteProgressFromDB(fileName) {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(STORE_NAME, 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.delete(fileName);
+                request.onsuccess = () => resolve();
+                request.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        // --- 應用程式狀態 ---
         let state = {
             rawSchema: [], rawResults: [], data: [], chatrooms: [], currentChatroomIndex: 0,
             schemaOptions: { S: [], B: [] },
@@ -228,7 +278,7 @@
             isDarkMode: false,
             currentFileName: '',
             activeTab: 'editor',
-            deletedChatrooms: [] // 每個物件: { id, count, messages: [] }
+            deletedChatrooms: [] 
         };
 
         const elements = {
@@ -256,7 +306,8 @@
             confirmModal: document.getElementById('confirmModal'),
             confirmMessage: document.getElementById('confirmMessage'),
             confirmOk: document.getElementById('confirmOk'),
-            confirmCancel: document.getElementById('confirmCancel')
+            confirmCancel: document.getElementById('confirmCancel'),
+            restoreModal: document.getElementById('restoreModal')
         };
 
         let confirmCallback = null;
@@ -272,8 +323,8 @@
             elements.darkModeToggle.addEventListener('click', toggleDarkMode);
             elements.listSearch.addEventListener('input', (e) => { state.filters.search = e.target.value; renderChatroomList(); });
             elements.clearStorageBtn.addEventListener('click', () => {
-                showConfirm("確定要清除所有進度並重新開始嗎？", () => {
-                    localStorage.removeItem(`coding_v7_${state.currentFileName}`);
+                showConfirm("確定要清除 IndexedDB 暫存並重新開始嗎？", async () => {
+                    await deleteProgressFromDB(state.currentFileName);
                     location.reload();
                 });
             });
@@ -326,13 +377,12 @@
             if (type === 'results') state.currentFileName = file.name;
             const reader = new FileReader();
             reader.onload = (evt) => {
-                const bstr = evt.target.result;
                 const extension = file.name.split('.').pop().toLowerCase();
                 let data = [];
                 if (extension === 'csv') {
-                    Papa.parse(bstr, { header: true, skipEmptyLines: true, complete: (res) => showMappingModal(res.data, type) });
+                    Papa.parse(evt.target.result, { header: true, skipEmptyLines: true, complete: (res) => showMappingModal(res.data, type) });
                 } else {
-                    const wb = XLSX.read(bstr, { type: 'binary' });
+                    const wb = XLSX.read(evt.target.result, { type: 'binary' });
                     data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
                     showMappingModal(data, type);
                 }
@@ -341,10 +391,7 @@
         }
 
         function showMappingModal(data, type) {
-            if(!data || data.length === 0) {
-                showToast("錯誤：檔案內容為空");
-                return;
-            }
+            if(!data || data.length === 0) { showToast("錯誤：檔案內容為空"); return; }
             const headers = Object.keys(data[0]);
             state[type === 'schema' ? 'rawSchema' : 'rawResults'] = data;
             let html = '';
@@ -379,7 +426,7 @@
             return `<div class="mb-4"><label class="block text-xs font-bold text-slate-600 mb-1 uppercase">${label}</label><select id="${id}" data-optional="${optional}" class="mapping-select w-full text-sm p-2 border rounded-lg bg-white outline-none focus:ring-2 focus:ring-indigo-400"><option value="">-- ${optional ? '請選擇 (選填)' : '請選擇'} --</option>${opts}</select><div id="preview-${id}" class="mt-1 text-[10px] text-slate-400 italic truncate">範例: ...</div></div>`;
         }
 
-        function finalizeMapping() {
+        async function finalizeMapping() {
             const type = state.currentMappingType;
             if (type === 'schema') {
                 const code = getValue('schema_code');
@@ -389,16 +436,15 @@
                 document.getElementById('schemaMappingStatus').innerText = "✅ 已配置規範";
             } else {
                 const chatroom = getValue('results_chatroom'), id = getValue('results_id'), sender = getValue('results_sender'), message = getValue('results_message');
-                if(!chatroom || !id || !sender || !message) { showToast("錯誤：前四項為必選"); return; }
+                if(!chatroom || !id || !sender || !message) { showToast("錯誤：必選欄位未配置"); return; }
                 state.mappings.results = { chatroom, id, sender, message, code: getValue('results_code'), confusing: getValue('results_confusing') };
                 
-                const saved = localStorage.getItem(`coding_v7_${state.currentFileName}`);
+                const saved = await getProgressFromDB(state.currentFileName);
                 if (saved) {
-                    const savedObj = JSON.parse(saved);
                     elements.restoreModal.classList.remove('hidden');
                     document.getElementById('restoreYes').onclick = () => { 
-                        state.data = savedObj.data || []; 
-                        state.deletedChatrooms = savedObj.deleted || [];
+                        state.data = saved.data || []; 
+                        state.deletedChatrooms = saved.deleted || [];
                         rebuildChatrooms();
                         elements.restoreModal.classList.add('hidden'); 
                         checkFinalReady(); 
@@ -508,22 +554,11 @@
         function deleteChatroom(index) {
             const room = state.chatrooms[index];
             showConfirm(`確定要刪除對話群組 [${room.id}] 嗎？此動作將從匯出資料中移除。`, () => {
-                // 將該群組的原始資料存入備份區以便復原
-                state.deletedChatrooms.push({ 
-                    id: room.id, 
-                    count: room.messages.length,
-                    messages: [...room.messages] 
-                });
-                
-                // 從主資料中過濾掉
+                state.deletedChatrooms.push({ id: room.id, count: room.messages.length, messages: [...room.messages] });
                 state.data = state.data.filter(msg => msg._chatroom !== room.id);
                 state.chatrooms.splice(index, 1);
-
-                if (state.currentChatroomIndex >= state.chatrooms.length) {
-                    state.currentChatroomIndex = Math.max(0, state.chatrooms.length - 1);
-                }
-
-                saveToLocalStorage();
+                if (state.currentChatroomIndex >= state.chatrooms.length) state.currentChatroomIndex = Math.max(0, state.chatrooms.length - 1);
+                saveProgress();
                 updateDashboard();
                 renderChatroomList();
                 if (state.chatrooms.length > 0) renderCurrentChatroom();
@@ -531,23 +566,18 @@
                     elements.dialogueContainer.innerHTML = '<div class="text-center py-20 text-slate-300 font-medium">資料庫目前已無任何對話</div>';
                     elements.currentChatroomId.innerText = '無對話';
                 }
-                showToast("已將對話移至刪除記錄");
+                showToast("已移至刪除記錄");
             });
         }
 
         function restoreChatroom(id) {
-            const recordIdx = state.deletedChatrooms.findIndex(d => d.id === id);
+            const recordIdx = state.deletedChatrooms.findIndex(d => String(d.id) === String(id));
             if (recordIdx === -1) return;
-
             const record = state.deletedChatrooms[recordIdx];
-            // 將備份的訊息放回 data
             state.data.push(...record.messages);
-            // 從備份區移除
             state.deletedChatrooms.splice(recordIdx, 1);
-
-            // 重新整理結構
             rebuildChatrooms();
-            saveToLocalStorage();
+            saveProgress();
             updateDashboard();
             renderChatroomList();
             renderCurrentChatroom();
@@ -587,7 +617,7 @@
 
         function updateCode(msgId, fullCode) {
             const idx = state.data.findIndex(d => d._id === msgId);
-            if (idx !== -1) { state.data[idx]._code = fullCode; saveToLocalStorage(); updateDashboard(); showToast(`已存: ${fullCode || '移除'}`); }
+            if (idx !== -1) { state.data[idx]._code = fullCode; saveProgress(); updateDashboard(); showToast(`已存: ${fullCode || '移除'}`); }
         }
 
         function toggleConfusing(msgId, checked) {
@@ -598,12 +628,9 @@
                 if(card) {
                     card.classList.toggle('confusing-card', checked);
                     const label = card.querySelector('.conf-check + span');
-                    if(label) {
-                        label.classList.toggle('text-red-600', checked); 
-                        label.classList.toggle('text-slate-400', !checked);
-                    }
+                    if(label) { label.classList.toggle('text-red-600', checked); label.classList.toggle('text-slate-400', !checked); }
                 }
-                saveToLocalStorage(); updateDashboard(); renderChatroomList(); showToast(checked ? "標記爭議" : "移除爭議");
+                saveProgress(); updateDashboard(); renderChatroomList(); showToast(checked ? "標記爭議" : "移除爭議");
             }
         }
 
@@ -614,13 +641,14 @@
             help.onclick = (e) => { if (e.target === help) help.classList.add('hidden'); };
         }
 
-        function saveToLocalStorage() {
+        async function saveProgress() {
             if(!state.currentFileName) return;
-            // 這裡直接保存目前的 state.data 和 state.deletedChatrooms
-            localStorage.setItem(`coding_v7_${state.currentFileName}`, JSON.stringify({
-                data: state.data,
-                deleted: state.deletedChatrooms
-            }));
+            try {
+                await saveProgressToDB(state.currentFileName, state.data, state.deletedChatrooms);
+            } catch (e) {
+                console.error("儲存失敗：", e);
+                showToast("進度儲存失敗！");
+            }
         }
 
         function updateDashboard() {
@@ -633,7 +661,6 @@
             document.getElementById('dashUserCount').innerText = user.length;
             renderChart('bot', bot.filter(m => m._code)); renderChart('user', user.filter(m => m._code));
             
-            // 更新儀表板刪除記錄，加入「復原」按鈕
             elements.noDeletedHint.classList.toggle('hidden', state.deletedChatrooms.length > 0);
             elements.deletedLog.innerHTML = state.deletedChatrooms.map(d => `
                 <div class="bg-white border border-red-200 p-4 rounded-xl flex justify-between items-center shadow-sm">
@@ -652,7 +679,7 @@
         function renderChart(type, coded) {
             const counts = coded.reduce((acc, m) => { acc[m._code] = (acc[m._code] || 0) + 1; return acc; }, {});
             const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]), max = sorted[0]?.[1] || 1, container = document.getElementById(type + 'Chart');
-            container.innerHTML = sorted.map(([tag, count]) => `<div class="group"><div class="flex justify-between text-[10px] font-bold mb-1"><span class="font-mono text-slate-700">${tag}</span><span class="text-slate-400">${count} 次</span></div><div class="h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200"><div class="h-full ${type === 'bot' ? 'bg-indigo-500' : 'bg-blue-500'} rounded-full transition-all duration-1000" style="width: ${(count/max)*100}%"></div></div></div>`).join('') || '<div class="text-slate-400 text-sm italic py-4 font-medium">尚無編碼數據</div>';
+            container.innerHTML = sorted.map(([tag, count]) => `<div class="group"><div class="flex justify-between text-[10px] font-bold mb-1"><span class="font-mono text-slate-700">${tag}</span><span class="text-slate-400">${count} 次</span></div><div class="h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200"><div class="h-full ${type === 'bot' ? 'bg-indigo-500' : 'bg-blue-500'} rounded-full transition-all duration-1000" style="width: ${(count/max)*100}%"></div></div></div>`).join('') || '<div class="text-slate-400 text-sm italic py-4">無數據</div>';
         }
 
         function toggleDarkMode() { state.isDarkMode = !state.isDarkMode; document.body.classList.toggle('dark', state.isDarkMode); elements.darkModeToggle.innerText = state.isDarkMode ? '☀️' : '🌙'; }
@@ -661,17 +688,10 @@
         function exportFile() {
             const m = state.mappings.results;
             const exportData = state.data.map(item => {
-                const row = { ...item };
-                const cHeader = m.code || 'code';
-                const cfHeader = m.confusing || 'confusing';
+                const row = { ...item }, cHeader = m.code || 'code', cfHeader = m.confusing || 'confusing';
                 row[cHeader] = item._code; row[cfHeader] = item.is_confusing ? '*' : '';
-                // 清理內部的輔助屬性
                 const cleanRow = {};
-                Object.keys(row).forEach(key => {
-                    if (!key.startsWith('_') && key !== 'is_confusing') {
-                        cleanRow[key] = row[key];
-                    }
-                });
+                Object.keys(row).forEach(key => { if (!key.startsWith('_') && key !== 'is_confusing') cleanRow[key] = row[key]; });
                 return cleanRow;
             });
             const ws = XLSX.utils.json_to_sheet(exportData), wb = XLSX.utils.book_new();
