@@ -16,37 +16,38 @@
             <div class="flex items-center gap-4">
                 <div>
                     <h1 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
-                        對話編碼輔助器 <span class="text-xs font-normal bg-indigo-600 text-white px-2 py-0.5 rounded-full uppercase tracking-tighter">Pro</span>
+                        對話編碼輔助器 <span class="text-xs font-normal bg-indigo-600 text-white px-2 py-0.5 rounded-full uppercase tracking-tighter">V2.0</span>
                     </h1>
-                    <p class="text-slate-500 text-sm">學位保衛戰版本</p>
+                    <p class="text-slate-500 text-sm" data-i18n="subtitle">學位保衛戰版本</p>
                 </div>
                 <button id="darkModeToggle" class="p-2 rounded-full hover:bg-slate-200 transition text-lg" title="切換深色模式">🌙</button>
+                <button id="languageToggle" class="px-3 py-1.5 rounded-full hover:bg-slate-200 transition text-xs font-bold border border-slate-200 bg-white text-slate-700">EN</button>
             </div>
             
             <div class="flex gap-2">
                 <button id="exportXlsxBtn" class="hidden px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-md font-bold flex items-center gap-2 text-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    匯出結果
+                    <span data-i18n="exportResults">匯出結果</span>
                 </button>
-                <button id="clearStorageBtn" class="hidden px-3 py-2 bg-white border border-red-200 text-red-500 rounded-lg hover:bg-red-50 text-xs font-medium">清除暫存</button>
+                <button id="clearStorageBtn" class="hidden px-3 py-2 bg-white border border-red-200 text-red-500 rounded-lg hover:bg-red-50 text-xs font-medium" data-i18n="clearStorage">清除暫存</button>
             </div>
         </header>
 
         <nav id="tabNav" class="hidden flex border-b border-slate-200 mb-4 gap-8">
-            <button data-tab="editor" class="tab-btn pb-2 text-base transition-all tab-active font-bold">💬 編碼作業區</button>
-            <button data-tab="dashboard" class="tab-btn pb-2 text-base transition-all text-slate-500 hover:text-indigo-600 font-medium">📊 數據儀表板</button>
+            <button data-tab="editor" class="tab-btn pb-2 text-base transition-all tab-active font-bold">💬 <span data-i18n="tabEditor">編碼作業區</span></button>
+            <button data-tab="dashboard" class="tab-btn pb-2 text-base transition-all text-slate-500 hover:text-indigo-600 font-medium">📊 <span data-i18n="tabDashboard">數據儀表板</span></button>
         </nav>
 
         <div id="uploadSection" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                <label class="block text-sm font-bold text-slate-700 mb-2">1. 載入編碼規範 (Schema)</label>
+                <label class="block text-sm font-bold text-slate-700 mb-2" data-i18n="uploadSchema">1. 載入編碼規範 (Schema)</label>
                 <input type="file" id="schemaFile" accept=".csv, .xlsx, .xls" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
-                <div id="schemaMappingStatus" class="mt-2 text-[10px] text-slate-400 font-medium italic">尚未配置欄位映射</div>
+                <div id="schemaMappingStatus" class="mt-2 text-[10px] text-slate-400 font-medium italic" data-i18n="mappingNotConfigured">尚未配置欄位映射</div>
             </div>
             <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                <label class="block text-sm font-bold text-slate-700 mb-2">2. 載入對話資料 (Results)</label>
+                <label class="block text-sm font-bold text-slate-700 mb-2" data-i18n="uploadResults">2. 載入對話資料 (Results)</label>
                 <input type="file" id="resultsFile" accept=".csv, .xlsx, .xls" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
-                <div id="resultsMappingStatus" class="mt-2 text-[10px] text-slate-400 font-medium italic">尚未配置欄位映射</div>
+                <div id="resultsMappingStatus" class="mt-2 text-[10px] text-slate-400 font-medium italic" data-i18n="mappingNotConfigured">尚未配置欄位映射</div>
             </div>
         </div>
 
@@ -54,14 +55,14 @@
             <div class="col-span-12 lg:col-span-3 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
                 <div class="p-3 border-b border-slate-100 bg-slate-50 flex flex-col gap-2">
                     <div class="flex items-center justify-between">
-                        <span class="font-bold text-slate-700 text-sm">對話群組清單</span>
+                        <span class="font-bold text-slate-700 text-sm" data-i18n="chatroomList">對話群組清單</span>
                         <span id="progressText" class="text-[10px] text-slate-400 font-bold">0 / 0</span>
                     </div>
-                    <input type="text" id="listSearch" placeholder="搜尋 ID..." class="w-full text-xs p-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                    <input type="text" id="listSearch" data-i18n-placeholder="searchIdPlaceholder" placeholder="搜尋 ID..." class="w-full text-xs p-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
                     <div class="flex gap-1">
-                        <button id="filterIncomplete" class="text-[10px] flex-1 py-1 rounded bg-slate-100 text-slate-600 hover:bg-indigo-100 transition font-bold">未完成</button>
-                        <button id="filterConfusing" class="text-[10px] flex-1 py-1 rounded bg-slate-100 text-slate-600 hover:bg-red-100 transition font-bold">有爭議</button>
-                        <button id="filterReset" class="text-[10px] px-2 py-1 rounded bg-slate-200 text-slate-700 font-bold">重置</button>
+                        <button id="filterIncomplete" class="text-[10px] flex-1 py-1 rounded bg-slate-100 text-slate-600 hover:bg-indigo-100 transition font-bold" data-i18n="filterIncomplete">未完成</button>
+                        <button id="filterConfusing" class="text-[10px] flex-1 py-1 rounded bg-slate-100 text-slate-600 hover:bg-red-100 transition font-bold" data-i18n="filterConfusing">有爭議</button>
+                        <button id="filterReset" class="text-[10px] px-2 py-1 rounded bg-slate-200 text-slate-700 font-bold" data-i18n="filterReset">重置</button>
                     </div>
                 </div>
                 <div id="chatroomList" class="overflow-y-auto flex-1 divide-y divide-slate-100 custom-scrollbar"></div>
@@ -70,14 +71,14 @@
             <div class="col-span-12 lg:col-span-9 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col relative">
                 <div id="chatHeader" class="p-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center sticky-header shadow-sm">
                     <div class="flex items-center gap-4">
-                        <h2 class="font-bold text-lg text-slate-700 truncate max-w-md" id="currentChatroomId">請選擇對話</h2>
+                        <h2 class="font-bold text-lg text-slate-700 truncate max-w-md" id="currentChatroomId" data-i18n="selectChatroom">請選擇對話</h2>
                         <span class="hidden xl:inline text-[10px] text-slate-400 bg-white border px-2 py-1 rounded shadow-sm">
-                            快速鍵提示: <kbd>1</kbd>-<kbd>9</kbd> 快速編碼 (滑鼠懸停時)
+                            <span data-i18n="shortcutHintPrefix">快速鍵提示:</span> <kbd>1</kbd>-<kbd>9</kbd> <span data-i18n="shortcutHintSuffix">快速編碼 (滑鼠懸停時)</span>
                         </span>
                     </div>
                     <div class="flex gap-2">
-                        <button id="prevBtn" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-slate-600 text-xs shadow-sm font-bold transition-all">← 上一個</button>
-                        <button id="nextBtn" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-slate-600 text-xs shadow-sm font-bold transition-all">下一個 →</button>
+                        <button id="prevBtn" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-slate-600 text-xs shadow-sm font-bold transition-all" data-i18n="prev">← 上一個</button>
+                        <button id="nextBtn" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-slate-600 text-xs shadow-sm font-bold transition-all" data-i18n="next">下一個 →</button>
                     </div>
                 </div>
                 <div id="dialogueContainer" class="p-4 overflow-y-auto flex-1 space-y-3 custom-scrollbar bg-slate-50/30"></div>
@@ -87,52 +88,52 @@
         <div id="dashboardView" class="hidden animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6 pb-20">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center">
-                    <div class="text-xs font-bold text-slate-400 uppercase mb-1">整體進度</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase mb-1" data-i18n="dashOverallProgress">整體進度</div>
                     <span id="dashProgress" class="text-4xl font-black text-indigo-600">0%</span>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center">
-                    <div class="text-xs font-bold text-slate-400 uppercase mb-1">爭議項</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase mb-1" data-i18n="dashConfusingItems">爭議項</div>
                     <span id="dashConfusing" class="text-4xl font-black text-red-500">0</span>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center">
-                    <div class="text-xs font-bold text-slate-400 uppercase mb-1">機器人 (B)</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase mb-1" data-i18n="dashBotCountTitle">機器人 (B)</div>
                     <span id="dashBotCount" class="text-4xl font-black text-slate-700">0</span>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center">
-                    <div class="text-xs font-bold text-slate-400 uppercase mb-1">學生 (S)</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase mb-1" data-i18n="dashUserCountTitle">學生 (S)</div>
                     <span id="dashUserCount" class="text-4xl font-black text-slate-700">0</span>
                 </div>
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <div class="bg-white p-6 rounded-2xl border border-slate-200"><h3 class="font-bold mb-4">B. Tags 統計</h3><div id="botChart" class="space-y-4"></div></div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-200"><h3 class="font-bold mb-4">S. Tags 統計</h3><div id="userChart" class="space-y-4"></div></div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200"><h3 class="font-bold mb-4" data-i18n="dashBotTagStats">B. Tags 統計</h3><div id="botChart" class="space-y-4"></div></div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200"><h3 class="font-bold mb-4" data-i18n="dashUserTagStats">S. Tags 統計</h3><div id="userChart" class="space-y-4"></div></div>
             </div>
 
             <div class="bg-white p-6 rounded-2xl border border-red-100 shadow-sm">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="font-bold text-red-600 flex items-center gap-2 uppercase tracking-wide text-sm">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        已刪除的對話群組 (將不會包含在最終編碼結果中)
+                        <span data-i18n="deletedChatroomsTitle">已刪除的對話群組 (將不會包含在最終編碼結果中)</span>
                     </h3>
                     <button id="exportDeletedBtn" class="hidden px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm font-bold text-xs flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        匯出已刪除資料 (XLSX)
+                        <span data-i18n="exportDeletedData">匯出已刪除資料 (XLSX)</span>
                     </button>
                 </div>
                 <div id="deletedLog" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
-                <div id="noDeletedHint" class="text-center py-6 text-slate-300 italic text-sm">目前尚無刪除記錄</div>
+                <div id="noDeletedHint" class="text-center py-6 text-slate-300 italic text-sm" data-i18n="noDeletedRecords">目前尚無刪除記錄</div>
             </div>
         </div>
     </div>
 
     <div id="confirmModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-[100] hidden p-4">
         <div class="bg-white max-w-sm w-full p-6 rounded-2xl shadow-2xl animate-in zoom-in duration-200">
-            <h3 id="confirmTitle" class="text-xl font-bold mb-2 text-slate-800 tracking-tight">操作確認</h3>
+            <h3 id="confirmTitle" class="text-xl font-bold mb-2 text-slate-800 tracking-tight" data-i18n="confirmTitle">操作確認</h3>
             <p id="confirmMessage" class="text-sm text-slate-500 mb-6 leading-relaxed"></p>
             <div class="flex gap-3">
-                <button id="confirmCancel" class="flex-1 py-2.5 border border-slate-200 rounded-xl text-slate-600 font-bold hover:bg-slate-50 transition-all">取消</button>
-                <button id="confirmOk" class="flex-1 py-2.5 bg-red-600 text-white rounded-xl font-bold shadow-lg hover:bg-red-700 transition-all">確定</button>
+                <button id="confirmCancel" class="flex-1 py-2.5 border border-slate-200 rounded-xl text-slate-600 font-bold hover:bg-slate-50 transition-all" data-i18n="cancel">取消</button>
+                <button id="confirmOk" class="flex-1 py-2.5 bg-red-600 text-white rounded-xl font-bold shadow-lg hover:bg-red-700 transition-all" data-i18n="confirm">確定</button>
             </div>
         </div>
     </div>
@@ -140,23 +141,23 @@
     <div id="mappingModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden p-4">
         <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in duration-200">
             <div class="p-4 border-b bg-indigo-50 flex justify-between items-center">
-                <h3 id="mappingModalTitle" class="font-bold text-indigo-900">配置資料映射</h3>
+                <h3 id="mappingModalTitle" class="font-bold text-indigo-900" data-i18n="mappingModalTitle">配置資料映射</h3>
             </div>
             <div id="mappingModalContent" class="p-6 space-y-4 overflow-y-auto max-h-[60vh] custom-scrollbar"></div>
             <div class="p-4 border-t bg-slate-50 flex justify-end gap-3">
-                <button id="cancelMappingBtn" class="px-4 py-2 text-slate-600 text-sm font-bold">取消</button>
-                <button id="confirmMappingBtn" class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-bold text-sm">載入資料</button>
+                <button id="cancelMappingBtn" class="px-4 py-2 text-slate-600 text-sm font-bold" data-i18n="cancel">取消</button>
+                <button id="confirmMappingBtn" class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-bold text-sm" data-i18n="loadData">載入資料</button>
             </div>
         </div>
     </div>
 
     <div id="restoreModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden p-4">
         <div class="bg-white max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center">
-            <h3 class="text-xl font-bold mb-2 text-slate-800 tracking-tight">繼續上次進度？</h3>
-            <p class="text-sm text-slate-500 mb-6 leading-relaxed">發現此檔案在瀏覽器中有 IndexedDB 保存的編碼記錄。</p>
+            <h3 class="text-xl font-bold mb-2 text-slate-800 tracking-tight" data-i18n="restoreModalTitle">繼續上次進度？</h3>
+            <p class="text-sm text-slate-500 mb-6 leading-relaxed" data-i18n="restoreModalMessage">發現此檔案在瀏覽器中有 IndexedDB 保存的編碼記錄。</p>
             <div class="flex gap-3">
-                <button id="restoreNo" class="flex-1 py-2 border border-slate-200 rounded-xl text-slate-600 font-bold hover:bg-slate-50">重新開始</button>
-                <button id="restoreYes" class="flex-1 py-2 bg-indigo-600 text-white rounded-xl font-bold shadow-md hover:bg-indigo-700">恢復進度</button>
+                <button id="restoreNo" class="flex-1 py-2 border border-slate-200 rounded-xl text-slate-600 font-bold hover:bg-slate-50" data-i18n="restart">重新開始</button>
+                <button id="restoreYes" class="flex-1 py-2 bg-indigo-600 text-white rounded-xl font-bold shadow-md hover:bg-indigo-700" data-i18n="restoreProgress">恢復進度</button>
             </div>
         </div>
     </div>
@@ -164,14 +165,14 @@
     <div id="helpModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden p-4">
         <div class="bg-white w-full max-w-2xl max-h-[80vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
             <div class="p-4 border-b bg-indigo-50 flex justify-between items-center">
-                <h3 id="helpModalTitle" class="font-bold text-indigo-900 italic">i 編碼說明</h3>
+                <h3 id="helpModalTitle" class="font-bold text-indigo-900 italic" data-i18n="helpModalTitle">i 編碼說明</h3>
                 <button onclick="closeHelpModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
             </div>
             <div id="helpModalContent" class="overflow-y-auto p-6 space-y-4 custom-scrollbar"></div>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-800 text-white rounded-full shadow-2xl opacity-0 transition-opacity pointer-events-none z-50 text-sm font-bold tracking-tight">已自動儲存</div>
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-800 text-white rounded-full shadow-2xl opacity-0 transition-opacity pointer-events-none z-50 text-sm font-bold tracking-tight" data-i18n="autoSaved">已自動儲存</div>
 
     <script src="./script.js"></script>
 </body>
